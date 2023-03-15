@@ -1,7 +1,7 @@
 {
-  "name": "jify",
+  "name": "jifro",
   "version": "0.3.0",
-  "description": "An indexed JSON file database",
+  "description": "An indexed JSON file database. Read-only fork.",
   "main": "lib/main.js",
   "bin": "lib/bin.js",
   "files": [
@@ -19,18 +19,21 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mohd-akram/jify.git"
+    "url": "git+https://github.com/claui/jifro.git"
   },
   "keywords": [
     "json",
     "database"
   ],
   "author": "Mohamed Akram",
+  "contributors": [
+    "Claudia Pellegrino"
+  ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mohd-akram/jify/issues"
+    "url": "https://github.com/claui/jifro/issues"
   },
-  "homepage": "https://github.com/mohd-akram/jify#readme",
+  "homepage": "https://github.com/claui/jifro#readme",
   "devDependencies": {
     "@types/argparse": "^2.0.10",
     "@types/node": "^16.11.9",
@@ -38,12 +41,12 @@
     "@typescript-eslint/parser": "^5.4.0",
     "eslint": "^8.3.0",
     "is-wsl": "^2.2.0",
+    "jify": "=0.3.0",
     "tisk": "^1.0.9",
     "typescript": "^4.5.2"
   },
   "dependencies": {
     "argparse": "^2.0.1",
-    "os-lock": "^2.0.0",
     "tiny-lru": "^7.0.6",
     "z85": "^0.0.2"
   }

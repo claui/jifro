@@ -3,14 +3,6 @@
 import { ArgumentParser } from 'argparse';
 import { Database, predicate, Query } from './main';
 
-async function index(file: string, fields: string[]) {
-  const db = new Database(file);
-  await db.index(...fields.map(f => {
-    const [name, type] = f.split(':');
-    return { name, type };
-  }));
-}
-
 async function find(file: string, queries: string[]) {
   const db = new Database(file);
   const iter = db.find(...queries.map(q => {
@@ -83,17 +75,10 @@ async function main() {
   const subparsers = parser.add_subparsers({ dest: 'command' });
 
   const commands = {
-    index: subparsers.add_parser(
-      'index', { help: 'index JSON file' },
-    ),
     find: subparsers.add_parser(
       'find', { help: 'query JSON file' },
     )
   };
-
-  // Index
-  commands.index.add_argument('file');
-  commands.index.add_argument('--field', { action: 'append' });
 
   // Find
   commands.find.add_argument('file');
@@ -101,9 +86,6 @@ async function main() {
 
   const args = parser.parse_args();
   switch (args.command) {
-    case 'index':
-      await index(args.file, args.field);
-      break;
     case 'find':
       await find(args.file, args.query);
       break;

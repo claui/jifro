@@ -1,25 +1,48 @@
-jify
-====
+jifro
+=====
 
-jify is an experimental library/tool for querying large (GBs) JSON files. It
-does this by first indexing the required fields. It can also be used as an
-append-only database.
+jifro is a feature-reduced fork of
+[jify](https://github.com/mohd-akram/jify), an experimental
+library/tool for querying large (GBs) JSON files. It does this by
+consuming an index over the required fields.
 
-When a JSON file is indexed (eg. `data.json`) an index file is created in the
-same directory with a `.index.json` extension (eg. `data.index.json`).
+In contrast to jify, jifro is read-only, i.e. it can only query a
+JSON file with an existing index but it can’t modify either.
+
+Building the index must be done in jify proper before jifro can use
+it. When a JSON file is indexed (eg. `data.json`), an index file is created in the same directory with a `.index.json` extension (eg.
+`data.index.json`).
+
+Why?
+----
+
+One might ask why one would want a separate, immutable version of
+jify rather than just ignore jify’s write-access features.
+
+The answer is that jify’s write-access features are using native
+code via jify’s `os-lock` dependency. While using native modules is
+usually not an issue, they can cause issues when one tries to use
+them on specific hosting platforms such as Electron apps.
+
+In other words, embedding the library inside an Electron app is
+easier if it doesn’t use native code. For use cases where read-only
+access is sufficient, this fork may be a useful trade-off.
 
 Install
 -------
 
-    npm install jify
+    npm install jifro
 
 Usage
 -----
 
+At development/build time (using jify):
+
 ```javascript
-const { Database, predicate: p } = require('jify');
+const { Database } = require('jify');
 
 async function main() {
+  // Must be created and indexed by
   const db = new Database('books.json');
 
   // Create
@@ -58,6 +81,19 @@ async function main() {
 
   // Index - creates books.index.json file
   await db.index('title', 'year', 'author.name');
+}
+
+main();
+```
+
+Then, at runtime (using jifro):
+
+```javascript
+const { Database, predicate: p } = require('jifro');
+
+async function main() {
+  // The same JSON file that jify created earlier
+  const db = new Database('books.json');
 
   // Query
   console.log('author.name = Charles Dickens, year > 1840');
@@ -86,10 +122,9 @@ main();
 ### CLI
 
 ```terminal
-$ jify index --field title --field author.name --field year books.json
-$ jify find --query "author.name=Charles Dickens,year>1840" books.json
-$ jify find --query "year>=1800<1900" books.json
-$ jify find --query "year<1800" --query "year>1900" books.json
+$ jifro find --query "author.name=Charles Dickens,year>1840" books.json
+$ jifro find --query "year>=1800<1900" books.json
+$ jifro find --query "year<1800" --query "year>1900" books.json
 ```
 
 Implementation
@@ -105,7 +140,11 @@ format, or multiple index files.
 Performance
 -----------
 
-jify is reasonably fast. It can index about 1M records (~700 MB) per minute and
-supports parallel indexing of fields. Inserting (with indexes) has similar
-performance. Query time is < 5ms for the first result + (0.1ms find + 0.1ms
-fetch) per subsequent result. All tests on a MBP 2016 base model.
+jify (and, by extension, jifro) is reasonably fast. Query time is
+< 5ms for the first result + (0.1ms find + 0.1ms fetch) per
+subsequent result. All tests on a MBP 2016 base model.
+
+Credits
+-------
+
+Credits go to @mohd-akram, the original author of jify.

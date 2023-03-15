@@ -1,6 +1,7 @@
 import * as assert from 'assert';
-import { promises as fs } from 'fs';
 import * as path from 'path';
+
+import * as jify from 'jify';
 
 import Database, { predicate as p } from '..';
 import { Record } from '../lib/database';
@@ -55,7 +56,7 @@ function sortObjectArray<T extends object>(arr: T[]) {
 }
 
 async function testInserts(
-  db: Database, fields: (string | IndexField)[],
+  db: jify.Database, fields: (string | IndexField)[],
   n = 1000, size = 100_000, value: (i: number) => Record
 ) {
   try {
@@ -105,8 +106,6 @@ async function testInsertAndFind(n = 10_000, size = 100_000, count = 20) {
   const fields = [
     'id', 'person.age', { name: 'created', type: 'date-time' }
   ];
-  const db = new Database(getFilename(`data-insert-${n}.json`));
-
   const { array: ids, count: idsCount } =
     fillArray(n, _ =>
       Math.random().toString(36) + '😋'.repeat(Math.random() * 10)
@@ -132,36 +131,37 @@ async function testInsertAndFind(n = 10_000, size = 100_000, count = 20) {
     );
   };
 
-  await testInserts(db, fields, n, size, i => ({
+  const jifyDb = new jify.Database(getFilename(`data-insert-${n}.json`));
+  await testInserts(jifyDb, fields, n, size, i => ({
     id: ids[i], person: { age: ages[i] }, created: dates[i]
   }));
-  await checkFind();
-  await (db as any)._index.drop();
-  await db.index(...fields);
+  const db = new Database(getFilename(`data-insert-${n}.json`));
+
   await checkFind();
 }
 
 async function testQueries() {
-  const db = new Database(getFilename('people.json'));
+  const jifyDb = new jify.Database(getFilename('people.json'));
 
   try {
-    await db.drop();
+    await jifyDb.drop();
   } catch (e) {
     if ((e as NodeJS.ErrnoException).code != 'ENOENT')
       throw e;
   }
-  await db.create();
+  await jifyDb.create();
 
-  await db.insert({ name: 'John', age: 42 });
-  await db.insert({ name: 'John', age: 43 });
-  await db.insert({ name: 'John', age: 17 });
-  await db.insert({ name: 'John', age: 18 });
-  await db.insert({ name: 'John', age: 20 });
-  await db.insert({ name: 'John', age: 35 });
-  await db.insert({ name: 'John', age: 50 });
+  await jifyDb.insert({ name: 'John', age: 42 });
+  await jifyDb.insert({ name: 'John', age: 43 });
+  await jifyDb.insert({ name: 'John', age: 17 });
+  await jifyDb.insert({ name: 'John', age: 18 });
+  await jifyDb.insert({ name: 'John', age: 20 });
+  await jifyDb.insert({ name: 'John', age: 35 });
+  await jifyDb.insert({ name: 'John', age: 50 });
 
-  await db.index('name', 'age');
+  await jifyDb.index('name', 'age');
 
+  const db = new Database(getFilename('people.json'));
   let results = await db.find({ name: 'John', age: 42 }).toArray();
   assert.deepEqual(
     sortObjectArray(results), sortObjectArray([{ name: 'John', age: 42 }])
@@ -195,22 +195,6 @@ async function testQueries() {
   ]));
 }
 
-async function testInvalid() {
-  const filename = getFilename('invalid.json');
-  try {
-    await fs.unlink(filename);
-  } catch (e) {
-    if ((e as NodeJS.ErrnoException).code != 'ENOENT')
-      throw e;
-  }
-  const file = await fs.open(filename, 'wx');
-  await file.close();
-  const db = new Database(filename);
-  await assert.rejects(db.insert({}));
-  await fs.writeFile(filename, 'invalid');
-  await assert.rejects(db.insert({}));
-}
-
 async function main() {
   const args = process.argv.slice(2);
   const n = Number(args.shift()) || undefined;
@@ -222,7 +206,6 @@ async function main() {
   await testInsertAndFind(1);
   await testInsertAndFind(200, 20);
   await testQueries();
-  await testInvalid();
 
   process.env.DEBUG = debug;
   await testInsertAndFind(n, size, count);
