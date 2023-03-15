@@ -12,17 +12,17 @@ async function main(filename: string) {
 
   await index.open();
 
-  function insertBatch() {
+  async function insertBatch() {
     const b = batch;
     batch = [];
     if (b.length)
-      index.insert(b, cache);
+      await index.insert(b, cache);
   }
 
   const handler = async (objectFields?: ObjectField[]) => {
     if (objectFields == null) {
       // Insert remaining fields
-      insertBatch();
+      await insertBatch();
       // Cleanup
       process.off('message', handler);
       process.once('beforeExit', async () => {
@@ -33,7 +33,7 @@ async function main(filename: string) {
 
     batch.push(...objectFields);
     if (batch.length >= size)
-      insertBatch();
+      await insertBatch();
   };
 
   process.on('message', handler);
@@ -42,4 +42,4 @@ async function main(filename: string) {
 
 process.once('unhandledRejection', err => { throw err; });
 
-main(process.argv[2]);
+void main(process.argv[2]);
