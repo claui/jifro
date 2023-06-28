@@ -121,7 +121,7 @@ main();
 
 ### CLI
 
-```terminal
+```shell
 $ jifro find --query "author.name=Charles Dickens,year>1840" books.json
 $ jifro find --query "year>=1800<1900" books.json
 $ jifro find --query "year<1800" --query "year>1900" books.json
