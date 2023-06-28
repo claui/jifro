@@ -31,7 +31,9 @@ access is sufficient, this fork may be a useful trade-off.
 Install
 -------
 
-    npm install jifro
+```shell
+npm install jifro
+```
 
 Usage
 -----
@@ -42,7 +44,7 @@ At development/build time (using jify):
 const { Database } = require('jify');
 
 async function main() {
-  // Must be created and indexed by
+  // Must be created and indexed by jify
   const db = new Database('books.json');
 
   // Create
@@ -119,12 +121,13 @@ async function main() {
 main();
 ```
 
-### CLI
+CLI
+---
 
-```terminal
-$ jifro find --query "author.name=Charles Dickens,year>1840" books.json
-$ jifro find --query "year>=1800<1900" books.json
-$ jifro find --query "year<1800" --query "year>1900" books.json
+```shell
+jifro find --query "author.name=Charles Dickens,year>1840" books.json
+jifro find --query "year>=1800<1900" books.json
+jifro find --query "year<1800" --query "year>1900" books.json
 ```
 
 Implementation
