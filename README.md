@@ -44,7 +44,7 @@ At development/build time (using jify):
 const { Database } = require('jify');
 
 async function main() {
-  // Must be created and indexed by
+  // Must be created and indexed by jify
   const db = new Database('books.json');
 
   // Create
