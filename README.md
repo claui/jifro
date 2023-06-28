@@ -31,7 +31,9 @@ access is sufficient, this fork may be a useful trade-off.
 Install
 -------
 
-    npm install jifro
+```shell
+npm install jifro
+```
 
 Usage
 -----
@@ -119,12 +121,13 @@ async function main() {
 main();
 ```
 
-### CLI
+CLI
+---
 
 ```shell
-$ jifro find --query "author.name=Charles Dickens,year>1840" books.json
-$ jifro find --query "year>=1800<1900" books.json
-$ jifro find --query "year<1800" --query "year>1900" books.json
+jifro find --query "author.name=Charles Dickens,year>1840" books.json
+jifro find --query "year>=1800<1900" books.json
+jifro find --query "year<1800" --query "year>1900" books.json
 ```
 
 Implementation
